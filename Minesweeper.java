@@ -8,7 +8,7 @@ public class Minesweeper {
     int gridSize = 5;
     int numberfMines = 5;
     Grid grid = new Grid(gridSize, numberfMines);
-    for (int i = 0; i < 25; ++i) {
+    while (!grid.isGameFinished()) {
       grid.dispaly();
       System.out.println("Enter row number:");
       int row = scan.nextInt();

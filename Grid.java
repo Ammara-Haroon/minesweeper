@@ -141,4 +141,23 @@ public class Grid {
     }
 
   }
+
+  public boolean isGameFinished() {
+    if (minesLeft != 0) {
+      return false;
+    }
+
+    for (int i = 0; i < this.gridSize; ++i) {
+      for (int j = 0; j < this.gridSize; ++j) {
+        if (this.cells[i][j].getType() == CellType.MINE) {
+          if (!this.cells[i][j].isMarked()) {
+            return false;
+          }
+        } else if (!this.cells[i][j].isRevealed()) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 }
