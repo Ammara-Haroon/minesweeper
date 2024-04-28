@@ -6,10 +6,11 @@ public class Minesweeper {
 
     System.out.println("Minesweeper");
     int gridSize = 5;
-    int numberfMines = 5;
+    int numberfMines = 1;
     Grid grid = new Grid(gridSize, numberfMines);
+    boolean isGameLost = false;
     while (!grid.isGameFinished()) {
-      grid.dispaly();
+      grid.display();
       System.out.println("Enter row number:");
       int row = scan.nextInt();
       System.out.println("Enter column number:");
@@ -21,12 +22,20 @@ public class Minesweeper {
       }
       if (choice == 'r') {
         if (!grid.reveal(row, col)) {
-          System.out.println("BOOM");
-          grid.dispaly();
+          isGameLost = true;
           break;
         }
       }
     }
+
     scan.close();
+
+    if (isGameLost) {
+      System.out.println("BOOM");
+    } else {
+      System.out.println("congratulations you won");
+
+    }
+    grid.display();
   }
 }

@@ -13,7 +13,7 @@ public class Grid {
     this.gridSize = gridSize;
     this.numberOfMines = numberOfMines;
     this.minesLeft = numberfMines;
-    this.cells = getCells(gridSize);
+    this.cells = createCells(gridSize);
     int[][] mineLocations = getUniqueMineLocations(numberfMines, gridSize);
     // System.out.println(Arrays.deepToString(mineLocations));
     setMineLocatons(mineLocations);
@@ -29,11 +29,44 @@ public class Grid {
     this.cells[x - 1][y - 1].toggleMark();
   }
 
-  public boolean reveal(int x, int y) {
-    return this.cells[x - 1][y - 1].reveal();
+  public boolean reveal(int row, int col) {
+    int x = row - 1;
+    int y = col - 1;
+    boolean result = this.cells[x][y].reveal();
+    if (this.cells[x][y].getValue() == 0) {
+      if (y + 1 < this.gridSize && !this.cells[x][y + 1].isRevealed()) {
+        this.reveal(row, col + 1);
+      }
+      if (y - 1 >= 0 && !this.cells[x][y - 1].isRevealed()) {
+        this.reveal(row, col - 1);
+      }
+      if (x + 1 < this.gridSize) {
+        if (!this.cells[x + 1][y].isRevealed()) {
+          this.reveal(row + 1, col);
+        }
+        if (y + 1 < this.gridSize && !this.cells[x + 1][y + 1].isRevealed()) {
+          this.reveal(row + 1, col + 1);
+        }
+        if (y - 1 >= 0 && !this.cells[x + 1][y - 1].isRevealed()) {
+          this.reveal(row + 1, col - 1);
+        }
+      }
+      if (x - 1 >= 0) {
+        if (!this.cells[x - 1][y].isRevealed()) {
+          this.reveal(row - 1, col);
+        }
+        if (y + 1 < this.gridSize && !this.cells[x - 1][y + 1].isRevealed()) {
+          this.reveal(row - 1, col + 1);
+        }
+        if (y - 1 >= 0 && !this.cells[x - 1][y - 1].isRevealed()) {
+          this.reveal(row - 1, col - 1);
+        }
+      }
+    }
+    return result;
   }
 
-  private Cell[][] getCells(int gridSize) {
+  private Cell[][] createCells(int gridSize) {
     Cell[][] cells = new Cell[gridSize][gridSize];
     for (int i = 0; i < gridSize; ++i) {
       for (int j = 0; j < gridSize; ++j) {
@@ -113,7 +146,7 @@ public class Grid {
     return mineLocations;
   }
 
-  public void dispaly() {
+  public void display() {
     System.out.println("Number of mines left:" + this.minesLeft);
     System.out.print("\t");
 
