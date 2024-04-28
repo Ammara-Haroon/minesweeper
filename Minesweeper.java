@@ -1,7 +1,13 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Minesweeper {
   public static void start() {
+    StatsFileManager statFile = new StatsFileManager(".\\stats.txt");
+    Stats stats = statFile.readStats();
+    System.out.println("Wins: " + stats.getWins() + " Total Played: " + stats.getTotalPlayed());
     Scanner scan = new Scanner(System.in);
 
     System.out.println("Minesweeper");
@@ -34,8 +40,10 @@ public class Minesweeper {
       System.out.println("BOOM");
     } else {
       System.out.println("congratulations you won");
-
+      stats.addToWins();
     }
     grid.display();
+    stats.addToTotalPlayed();
+    statFile.writeStats(stats);
   }
 }
