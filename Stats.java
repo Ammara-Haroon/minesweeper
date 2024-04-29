@@ -22,4 +22,11 @@ public class Stats {
   public void addToWins() {
     this.wins++;
   }
+
+  public double getWinPercentage() {
+    if (this.totalPlayed != 0) {
+      return ((double) this.wins / this.totalPlayed) * 100;
+    }
+    return 0;
+  }
 }

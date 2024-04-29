@@ -1,2 +1,2 @@
-total=2
-wins=0
+total=19
+wins=7

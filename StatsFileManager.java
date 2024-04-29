@@ -2,12 +2,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-
-import javax.imageio.IIOException;
 
 public class StatsFileManager {
-  String filePath = ".\\stats.txt";
+  private String filePath = ".\\stats.txt";
 
   public StatsFileManager(String filePath) {
     this.filePath = filePath;
@@ -15,7 +12,7 @@ public class StatsFileManager {
       File statsFile = new File(filePath);
       statsFile.createNewFile();
     } catch (IOException e) {
-      System.out.println("Error opening/creating file");
+      System.out.println("Error opening/creating game stats file. Try again later.");
       e.printStackTrace();
     }
   }

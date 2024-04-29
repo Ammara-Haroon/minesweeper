@@ -1,3 +1,4 @@
+
 public class Cell {
   private boolean revealed = false;
   private boolean marked = false;
