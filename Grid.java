@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Random;
 
@@ -24,6 +25,9 @@ public class Grid {
   }
 
   public void toggleMark(int x, int y) {
+    if (this.cells[x - 1][y - 1].isRevealed()) {
+      return;
+    }
     if (this.cells[x - 1][y - 1].isMarked()) {
       this.minesLeft++;
     } else {
@@ -32,76 +36,37 @@ public class Grid {
     this.cells[x - 1][y - 1].toggleMark();
   }
 
-  private ArrayList<Integer[]> getSurroundingCellLocations(int x, int y) {
-    ArrayList<Integer[]> result = new ArrayList<>();
-    if (y + 1 < this.gridColumns) {
-      Integer[] coord = { x, y + 1 };
-      result.add(coord);
-    }
-    if (y - 1 >= 0) {
-      Integer[] coord = { x, y - 1 };
-      result.add(coord);
-    }
-    if (x + 1 < this.gridRows) {
-      Integer[] cord = { x + 1, y };
-      result.add(cord);
-      if (y + 1 < this.gridColumns) {
-        Integer[] coord = { x + 1, y + 1 };
-        result.add(coord);
-      }
-      if (y - 1 >= 0) {
-        Integer[] coord = { x + 1, y - 1 };
-        result.add(coord);
+  private List<int[]> getSurroundingCellLocations(int x, int y) {
+    ArrayList<int[]> result = new ArrayList<>();
+    for (int i = -1; i < 2; ++i) {
+      for (int j = -1; j < 2; ++j) {
+        int[] cord = { x + i, y + j };
+        result.add(cord);
       }
     }
-    if (x - 1 >= 0) {
-      Integer[] cord = { x - 1, y };
-      result.add(cord);
-      if (y + 1 < this.gridColumns) {
-        Integer[] coord = { x - 1, y + 1 };
-        result.add(coord);
-      }
-      if (y - 1 >= 0) {
-        Integer[] coord = { x - 1, y - 1 };
-        result.add(coord);
-      }
-    }
-    return result;
+    return result
+        .stream()
+        .filter(loc -> loc[0] != x || loc[1] != y)
+        .filter(loc -> loc[0] < this.gridRows && loc[0] >= 0)
+        .filter(loc -> loc[1] < this.gridColumns && loc[1] >= 0)
+        .toList();
   }
 
   public boolean reveal(int row, int col) {
     int x = row - 1;
     int y = col - 1;
+    if (this.cells[x][y].isMarked()) {
+      this.minesLeft++;
+    }
     boolean result = this.cells[x][y].reveal();
+
     if (this.cells[x][y].getValue() == 0) {
-      if (y + 1 < this.gridColumns && !this.cells[x][y + 1].isRevealed()) {
-        this.reveal(row, col + 1);
-      }
-      if (y - 1 >= 0 && !this.cells[x][y - 1].isRevealed()) {
-        this.reveal(row, col - 1);
-      }
-      if (x + 1 < this.gridRows) {
-        if (!this.cells[x + 1][y].isRevealed()) {
-          this.reveal(row + 1, col);
-        }
-        if (y + 1 < this.gridColumns && !this.cells[x + 1][y + 1].isRevealed()) {
-          this.reveal(row + 1, col + 1);
-        }
-        if (y - 1 >= 0 && !this.cells[x + 1][y - 1].isRevealed()) {
-          this.reveal(row + 1, col - 1);
-        }
-      }
-      if (x - 1 >= 0) {
-        if (!this.cells[x - 1][y].isRevealed()) {
-          this.reveal(row - 1, col);
-        }
-        if (y + 1 < this.gridColumns && !this.cells[x - 1][y + 1].isRevealed()) {
-          this.reveal(row - 1, col + 1);
-        }
-        if (y - 1 >= 0 && !this.cells[x - 1][y - 1].isRevealed()) {
-          this.reveal(row - 1, col - 1);
-        }
-      }
+      List<int[]> surroundingCells = getSurroundingCellLocations(x, y);
+      surroundingCells
+          .stream()
+          .filter(loc -> !this.cells[loc[0]][loc[1]].isRevealed())
+          .filter(loc -> !this.cells[loc[0]][loc[1]].isMarked())
+          .forEach(loc -> this.reveal(loc[0] + 1, loc[1] + 1));
     }
     return result;
   }
@@ -117,53 +82,19 @@ public class Grid {
   }
 
   private void setMineSurroundings(int[][] mineLocations) {
-
     for (int i = 0; i < mineLocations.length; ++i) {
-      int x = mineLocations[i][0];
-      int y = mineLocations[i][1];
-
-      if (x + 1 < this.gridRows) {
-        if (this.cells[x + 1][y].getType() != CellType.MINE) {
-          this.cells[x + 1][y].setValue(this.cells[x + 1][y].getValue() + 1);
-          this.cells[x + 1][y].setType(CellType.NEXT_TO_MINE);
-        }
-        if (y - 1 >= 0 && this.cells[x + 1][y - 1].getType() != CellType.MINE) {
-          this.cells[x + 1][y - 1].setValue(this.cells[x + 1][y - 1].getValue() + 1);
-          this.cells[x + 1][y - 1].setType(CellType.NEXT_TO_MINE);
-        }
-        if (y + 1 < this.gridColumns && this.cells[x + 1][y + 1].getType() != CellType.MINE) {
-          this.cells[x + 1][y + 1].setValue(this.cells[x + 1][y + 1].getValue() + 1);
-          this.cells[x + 1][y + 1].setType(CellType.NEXT_TO_MINE);
-
-        }
-      }
-      if (x - 1 >= 0) {
-        if (this.cells[x - 1][y].getType() != CellType.MINE) {
-          this.cells[x - 1][y].setValue(this.cells[x - 1][y].getValue() + 1);
-          this.cells[x - 1][y].setType(CellType.NEXT_TO_MINE);
-        }
-        if (y - 1 >= 0 && this.cells[x - 1][y - 1].getType() != CellType.MINE) {
-          this.cells[x - 1][y - 1].setValue(this.cells[x - 1][y - 1].getValue() + 1);
-          this.cells[x - 1][y - 1].setType(CellType.NEXT_TO_MINE);
-        }
-        if (y + 1 < this.gridColumns && this.cells[x - 1][y + 1].getType() != CellType.MINE) {
-          this.cells[x - 1][y + 1].setValue(this.cells[x - 1][y + 1].getValue() + 1);
-          this.cells[x - 1][y + 1].setType(CellType.NEXT_TO_MINE);
-        }
-      }
-      if (y - 1 >= 0 && this.cells[x][y - 1].getType() != CellType.MINE) {
-        this.cells[x][y - 1].setValue(this.cells[x][y - 1].getValue() + 1);
-        this.cells[x][y - 1].setType(CellType.NEXT_TO_MINE);
-      }
-      if (y + 1 < this.gridColumns && this.cells[x][y + 1].getType() != CellType.MINE) {
-        this.cells[x][y + 1].setValue(this.cells[x][y + 1].getValue() + 1);
-        this.cells[x][y + 1].setType(CellType.NEXT_TO_MINE);
-      }
+      List<int[]> surroundingCells = getSurroundingCellLocations(mineLocations[i][0], mineLocations[i][1]);
+      surroundingCells
+          .stream()
+          .filter(loc -> this.cells[loc[0]][loc[1]].getType() != CellType.MINE)
+          .forEach(loc -> {
+            this.cells[loc[0]][loc[1]].setValue(this.cells[loc[0]][loc[1]].getValue() + 1);
+            this.cells[loc[0]][loc[1]].setType(CellType.NEXT_TO_MINE);
+          });
     }
   }
 
   private void setMineLocatons(int[][] mineLocations) {
-    // System.out.println(Arrays.deepToString(this.cells));
     for (int i = 0; i < mineLocations.length; ++i) {
       this.cells[mineLocations[i][0]][mineLocations[i][1]].setValue(-1);
       this.cells[mineLocations[i][0]][mineLocations[i][1]].setType(CellType.MINE);
@@ -186,47 +117,28 @@ public class Grid {
     return mineLocations;
   }
 
-  public void display() {
-    System.out.println("Number of mines left:" + this.minesLeft);
-    System.out.print("\t");
+  public String toString(){
+    String finalStr =  "Number of mines left:" + this.minesLeft+"\n\t";
 
     for (int i = 0; i < this.gridColumns; ++i) {
-      String str;
-      if (i < 9) {
-
-        str = " " + (i + 1) + " ";
-      } else {
-        str = " " + (i + 1);
-      }
-      System.out.print(str);
+      finalStr += i < 9 ?  " " + (i + 1) + " ":" " + (i + 1);;
     }
-    System.out.println("");
+    finalStr +="\n";
     for (int i = 0; i < this.gridRows; ++i) {
-      System.out.print((i + 1) + "\t");
+      finalStr += (i + 1) + "\t";
       for (int j = 0; j < this.gridColumns; ++j) {
-        if (this.cells[i][j].isRevealed()) {
-          if (this.cells[i][j].getType() == CellType.MINE) {
-            System.out.print("[*]");
-
-          } else {
-            System.out.print("[" + this.cells[i][j].getValue() + "]");
-          }
-        } else if (this.cells[i][j].isMarked()) {
-          System.out.print("[x]");
-        } else {
-          System.out.print("[_]");
-        }
+        finalStr += (this.cells[i][j].toString());
       }
-      System.out.println("");
+          finalStr +="\n";
     }
-
+    return finalStr;
   }
 
   public boolean isGameFinished() {
     if (minesLeft != 0) {
       return false;
     }
-
+  
     for (int i = 0; i < this.gridRows; ++i) {
       for (int j = 0; j < this.gridColumns; ++j) {
         if (this.cells[i][j].getType() == CellType.MINE) {

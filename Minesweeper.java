@@ -95,7 +95,7 @@ public class Minesweeper {
     System.out.println("\n********LETS START THE GAME********\n");
 
     while (!grid.isGameFinished()) {
-      grid.display();
+      System.out.print(grid);//grid.display();
       int row = getIntInput(1, rowInput, "Enter row number (1-" + rowInput + "): ");
       int col = getIntInput(1, colInput, "Enter column number (1-" + colInput + "): ");
       ActionChoice action = getActionChoiceInput("Do you want to mark/unmark (m) it or reveal (r) it? ", 'm', 'r');
@@ -110,7 +110,7 @@ public class Minesweeper {
       }
     }
     Stats stats = statFile.readStats();
-    grid.display();
+    System.out.print(grid);//grid.display();
 
     if (isGameLost) {
       ASCIIArt.displayBlast();

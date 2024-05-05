@@ -44,4 +44,17 @@ public class Cell {
   public CellType getType() {
     return this.type;
   }
+  public String toString(){
+    if (this.isRevealed()) {
+          if (this.getType() == CellType.MINE) {
+            return "[*]";
+          }
+          return "[" + this.getValue() + "]";
+          
+    } else if (this.isMarked()) {
+          return "[x]";
+    } 
+    return "[_]";
+      
+  }
 }
