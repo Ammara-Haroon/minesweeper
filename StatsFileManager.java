@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+//this class saves statistics of the game and manages file reads and writes
 public class StatsFileManager {
   private String filePath = ".\\stats.txt";
 
