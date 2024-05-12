@@ -1,3 +1,4 @@
+//class represents statistics for the game
 public class Stats {
   private long wins;
   private long totalPlayed;

@@ -1,4 +1,4 @@
-
+//Cell represents a cell on the game grid
 public class Cell {
   private boolean revealed = false;
   private boolean marked = false;
@@ -15,13 +15,9 @@ public class Cell {
     }
   }
 
-  public boolean reveal() {
+  public void reveal() {
     this.revealed = true;
     this.marked = false;
-    if (this.type == CellType.MINE) {
-      return false;
-    }
-    return true;
 
   }
 
@@ -44,17 +40,18 @@ public class Cell {
   public CellType getType() {
     return this.type;
   }
-  public String toString(){
+
+  public String toString() {
     if (this.isRevealed()) {
-          if (this.getType() == CellType.MINE) {
-            return "[*]";
-          }
-          return "[" + this.getValue() + "]";
-          
+      if (this.getType() == CellType.MINE) {
+        return "[*]";
+      }
+      return "[" + this.getValue() + "]";
+
     } else if (this.isMarked()) {
-          return "[x]";
-    } 
+      return "[x]";
+    }
     return "[_]";
-      
+
   }
 }

@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +12,7 @@ public class Grid {
   Cell[][] cells;
   int minesLeft = 10;
 
+  // set up the grid, create cells and add the mines to random locations
   public Grid(int gridRows, int gridColumns, int numberfMines) {
     this.gridRows = gridRows;
     this.gridColumns = gridColumns;
@@ -24,6 +24,7 @@ public class Grid {
     setMineSurroundings(mineLocations);
   }
 
+  // flag or un-flag a mine
   public void toggleMark(int x, int y) {
     if (this.cells[x - 1][y - 1].isRevealed()) {
       return;
@@ -36,6 +37,7 @@ public class Grid {
     this.cells[x - 1][y - 1].toggleMark();
   }
 
+  // get locations of surrounding cells
   private List<int[]> getSurroundingCellLocations(int x, int y) {
     ArrayList<int[]> result = new ArrayList<>();
     for (int i = -1; i < 2; ++i) {
@@ -52,13 +54,18 @@ public class Grid {
         .toList();
   }
 
+  // returns false if the revaled cell is a mine otherwise recursively reveal all
+  // the cells with no mines
   public boolean reveal(int row, int col) {
     int x = row - 1;
     int y = col - 1;
     if (this.cells[x][y].isMarked()) {
       this.minesLeft++;
     }
-    boolean result = this.cells[x][y].reveal();
+    this.cells[x][y].reveal();
+    if (this.cells[x][y].getType() == CellType.MINE) {
+      return false;
+    }
 
     if (this.cells[x][y].getValue() == 0) {
       List<int[]> surroundingCells = getSurroundingCellLocations(x, y);
@@ -68,9 +75,10 @@ public class Grid {
           .filter(loc -> !this.cells[loc[0]][loc[1]].isMarked())
           .forEach(loc -> this.reveal(loc[0] + 1, loc[1] + 1));
     }
-    return result;
+    return true;
   }
 
+  // add cells to the cells array
   private Cell[][] createCells(int gridRows, int gridColumns) {
     Cell[][] cells = new Cell[gridRows][gridColumns];
     for (int i = 0; i < gridRows; ++i) {
@@ -81,19 +89,22 @@ public class Grid {
     return cells;
   }
 
+  // set the number of mines for the cells in vicinity of mines
   private void setMineSurroundings(int[][] mineLocations) {
     for (int i = 0; i < mineLocations.length; ++i) {
       List<int[]> surroundingCells = getSurroundingCellLocations(mineLocations[i][0], mineLocations[i][1]);
       surroundingCells
           .stream()
           .filter(loc -> this.cells[loc[0]][loc[1]].getType() != CellType.MINE)
-          .forEach(loc -> {
-            this.cells[loc[0]][loc[1]].setValue(this.cells[loc[0]][loc[1]].getValue() + 1);
-            this.cells[loc[0]][loc[1]].setType(CellType.NEXT_TO_MINE);
+          .map(loc -> this.cells[loc[0]][loc[1]])
+          .forEach(cell -> {
+            cell.setValue(cell.getValue() + 1);
+            cell.setType(CellType.NEXT_TO_MINE);
           });
     }
   }
 
+  // set cells to type mine according to the list of locations provided
   private void setMineLocatons(int[][] mineLocations) {
     for (int i = 0; i < mineLocations.length; ++i) {
       this.cells[mineLocations[i][0]][mineLocations[i][1]].setValue(-1);
@@ -101,6 +112,7 @@ public class Grid {
     }
   }
 
+  // use random number generator to get unique locations for mines
   private int[][] getUniqueMineLocations(int numberfMines, int gridRows, int gridColumns) {
     Set<Integer> uniqueRandomNumbers = new HashSet<>();
     Random random = new Random();
@@ -117,28 +129,31 @@ public class Grid {
     return mineLocations;
   }
 
-  public String toString(){
-    String finalStr =  "Number of mines left:" + this.minesLeft+"\n\t";
+  // convert the grid to string representation
+  public String toString() {
+    String finalStr = "Number of mines left:" + this.minesLeft + "\n\t";
 
     for (int i = 0; i < this.gridColumns; ++i) {
-      finalStr += i < 9 ?  " " + (i + 1) + " ":" " + (i + 1);;
+      finalStr += i < 9 ? " " + (i + 1) + " " : " " + (i + 1);
+      ;
     }
-    finalStr +="\n";
+    finalStr += "\n";
     for (int i = 0; i < this.gridRows; ++i) {
       finalStr += (i + 1) + "\t";
       for (int j = 0; j < this.gridColumns; ++j) {
         finalStr += (this.cells[i][j].toString());
       }
-          finalStr +="\n";
+      finalStr += "\n";
     }
     return finalStr;
   }
 
+  // check if all mines have been marked and all cells have been revealed
   public boolean isGameFinished() {
     if (minesLeft != 0) {
       return false;
     }
-  
+
     for (int i = 0; i < this.gridRows; ++i) {
       for (int j = 0; j < this.gridColumns; ++j) {
         if (this.cells[i][j].getType() == CellType.MINE) {
